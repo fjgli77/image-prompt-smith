@@ -135,7 +135,7 @@ python scripts/prompt_lint.py --platform seedream --purpose poster \
 python scripts/prompt_lint.py --file prompt.txt --platform mj --json
 ```
 
-输出 **P0（必改）/ P1（建议改）/ P2（可选）** 与 0–100 分，共 21 类检查：
+输出 **P0（必改）/ P1（建议改）/ P2（可选）** 与 0–100 分，共 23 类检查：
 
 - 结构缺格、画幅未量化、语义冲突、平台语法误用
 - 画质词堆砌、动作过量、空词、文字期望不匹配
@@ -144,6 +144,20 @@ python scripts/prompt_lint.py --file prompt.txt --platform mj --json
 - 特效多层未分主次、粒子词堆砌、动态模糊未保主体
 - 建模向：缺正交 / 缺 A-Pose / 缺地标线 / 缺中性表情
 - 图型专属：灯光参考写了统一光、材质分区混入材质参数、骨骼视图写 rig、换装图未锁变量
+- 低模：未分面数（P2）、混入高模细节（P1）
+- 3D 生成：缺四肢分离（P1）、未排除悬空件（P2）；`--purpose model3d` 豁免光段/镜头/画幅
+- 服装：叠穿 ≥3 层（P1）、配饰 ≥5 件（P1）、服饰特效无附着点（P2）
+- 场景：人物/玄幻题材未分层（P2）
+- 玄幻：可数实体未封顶（P2）、头顶光环与身后轮盘同时肯定（P1）、光环带辐条（P2）
+- 服装锚点：缺分层（P2）、配色超三色（P2）、多视图未锁同一套服装（P2）
+- 题材：跨族混搭未声明主题材（P2）
+- 题材：跨族混搭未声明主题材（P2）
+
+**两条保护机制**（避免"误报逼人改设计"）：
+
+- `--length short|standard|long`：长度分三档，轻微超出只报 P2；
+- `--purpose turnaround|character_sheet|profile_page`：展示型设定稿**不套建模五项**（正交/A-Pose/地标线/中性表情）；
+- `--energy restrained|epic`：战斗 KV 允许多一层特效，阈值放宽但要求分层写清。
 
 已知边界：脚本是启发式检查，命中后仍需人工复核。它不能判断"这张图好不好看"，只能判断"这条词有没有结构性错误"。
 
@@ -153,7 +167,7 @@ python scripts/prompt_lint.py --file prompt.txt --platform mj --json
 
 ```
 image-prompt-smith/            ← 仓库根 = Skill 根
-├── SKILL.md                   主入口：主路径 + 反推 + 图型路由 + 11 格 + 18 条铁律
+├── SKILL.md                   主入口：主路径 + 反推 + 图型路由 + 11 格 + 27 条铁律
 ├── references/                12 份通用参考
 │   ├── 01-intake.md           需求拆解与提问
 │   ├── 02-syntax.md           11 格画面语法
@@ -163,29 +177,40 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 │   ├── 06-text-in-image.md    图内文字
 │   ├── 07-negative.md         反向词与白名单写法
 │   ├── 08-diagnose.md         48 条症状码排查树
-│   ├── 09-recipes.md          18 张用途配方卡（海报 / 封面 / 主图 / 信息图 …）
+│   ├── 09-recipes.md          21 张用途配方卡（含仙侠神域 / 宗门帝庭 / 天劫 KV）
 │   ├── 10-eval.md             出图前 30 项自检
 │   ├── 11-style-block.md      九槽风格区间块
 │   ├── 12-reference-and-multiframe.md  多格与参考图
-│   └── character/             22 份人物参考
+│   └── character/             29 份人物参考
 │       ├── image-types.md          34 种图型（核心）
 │       ├── body-parts.md           部位词法（头到脚，按景别裁剪）
-│       ├── vfx.md                  特效层（事件化写法）
+│       ├── vfx.md                  特效层（事件化写法 + 体积感三条件）
 │       ├── aesthetics.md           角色美学六轴（形状 / 剪影 / 体块 / 动态线）
 │       ├── anime-3d.md             3D 动漫五条路线
-│       ├── modeling-handoff.md     建模交付规范
+│       ├── low-poly.md             低模面数预算法
+│       ├── fantasy-elements.md     玄幻六类零件 + 方位槽位 + epic 档
+│       ├── scene-space.md          场景三层 + 接触/反光/遮挡 + 题材场景包
+│       ├── costume-structure.md    分层四件 + 甲胄三层 + 轻装覆盖分区 + 服装锚点
+│       ├── style-atlas.md          A–M 十四格流派图鉴（画法/哪一家）
+│       ├── genre-atlas.md          24 类题材图鉴（世界观）+ 五问拆解法
+│       ├── modeling-handoff.md     建模交付规范（出图给人建）
+│       ├── text-to-3d.md           直接喂 3D 生成器（六层简报 + 绑骨五条件）
 │       ├── image-to-prompt.md      图 → 词反推
 │       ├── cross-model.md          跨模型迁移
 │       └── …                       服装 / 表情 / 档案 / 一致性 / 提问卡
-├── scripts/prompt_lint.py     21 类机检
-├── examples/                  3 个完整走查
+├── scripts/
+│   ├── prompt_lint.py        23 类机检 / 32 条自测（零依赖）
+│   ├── image_prep.py         反推前置：转码/去边/裁切/缩放/切格（需 Pillow）
+│   └── prompt_diff.py        两版提示词的锚点漂移核对（六组锚点，零依赖）
+├── examples/                  4 个完整走查
 │   ├── demo-coffee-poster.md              咖啡海报（通用）
 │   ├── character-full-demo.md             古风女剑客（部位 + 特效）
-│   └── character-combo-threeview-hair.md  三视图 + 发型图（组合图型）
+│   ├── character-combo-threeview-hair.md  三视图 + 发型图（组合图型）
+│   └── fantasy-kv-female-light.md         3D 玄幻女帝轻装 KV（锁定项 + epic 三层）
 ├── dist/                      给非 Skill 宿主
 │   ├── 单文件版-通用人设提示词.md
 │   └── 测试指南.md             10 条验收用例
-├── docs/                      设计依据（7 份调研与评审）
+├── docs/                      设计依据（8 份调研与评审）
 ├── README.md
 └── LICENSE                    MIT
 ```
@@ -203,6 +228,7 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 | `docs/调研-3D动漫人物提示词.md` | 3D 动漫必须拆成五条互斥路线，否则等于随机 |
 | `docs/调研-特效提示词全网检索.md` | 特效要写"怎么发生"而不是"长什么样"，附实测干净率 |
 | `docs/调研-3D人物美学书单与可迁移原则.md` | 九本书的共同方法论：几何形 → 剪影 → 体块 → 五官 |
+| `docs/调研-3D建模与特效书单.md` | 16 本书的可迁移性分档：低模与 text→3D 能变成词，DCC 操作书只能当选书参考 |
 | `docs/评审-建模师视角.md` | 以建模师身份挑出的七个会返工的问题 |
 | `docs/外部skill功能清单.md` | 同类 Skill 能力矩阵与空位分析 |
 
@@ -223,7 +249,7 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 ## 分支与版本
 
 - **`hey`**：开发分支，后续所有改动都提交在这里。
-- 当前版本 `v1.3`，变更集中在图型库（17 → 34 种，分三族）与合图判定。
+- 当前版本 `v1.7`：新增 `genre-atlas.md`（24 类题材覆盖仙侠到 Y2K 到克苏鲁）+ 跨题材混搭机检；`v1.6`：按第四份盘点补玄幻/服装/场景/风格四类题材库（`fantasy-elements` / `scene-space` / `costume-structure` / `style-atlas`）、主流程加「锁定项提取」与「成图偏差回看」、新增 `prompt_diff.py` 锚点漂移核对、机检新增方位/数量/服装锚点检查与 `--energy epic` 档。`v1.5` 修机检误判，`v1.4` 低模与 text→3D，`v1.3` 图型库 34 种。
 
 ## License
 

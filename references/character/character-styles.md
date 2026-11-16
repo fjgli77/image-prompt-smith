@@ -145,6 +145,7 @@ elegant cultural depth, ink-wash influenced color gradation
 low poly stylized character, minimal faceted geometry, flat shaded polygons,
 strong readable silhouette, extremely limited palette, abstract simplified forms
 ```
+> 这一块只解决"像不像低模"。**面数怎么分配、哪密哪疏、面片朝向怎么走**，见 `low-poly.md`——低模的成败在预算分配，不在风格词。
 
 ---
 
