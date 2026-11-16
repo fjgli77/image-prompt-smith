@@ -1,0 +1,10 @@
+# 统一换行，避免 .sh 在 Linux/macOS 出现 bad interpreter
+* text=auto eol=lf
+*.sh text eol=lf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# 二进制
+*.png binary
+*.jpg binary
+*.zip binary
