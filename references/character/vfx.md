@@ -37,7 +37,7 @@
 
 ---
 
-## 二、五族特效：每族写"动词 + 形态 + 参数"
+## 二、六族特效：每族写"动词 + 形态 + 参数"
 
 ### 2.1 光（最便宜、最有效）
 
@@ -113,6 +113,38 @@
 
 **形变最忌"全图一起变"**：写清起点（从边缘/从脚下/从伤口）、传播方向、残留物。
 
+### 2.6 服饰特效（附着在衣服上的那一类）
+
+> 这一类最容易被漏掉：它既不是"粒子"，也不是"光效"，而是**长在布料/刺绣/甲片上的效果**。
+> 玄幻法袍、机甲战衣、发光礼服全靠它。**关键是"附着位置"——不写位置，模型会糊满全身。**
+
+| 类型 | 写法 | 附着点必写 |
+|---|---|---|
+| 光缕游走 | `thin threads of light travelling along the hem` | 沿哪条线（裙缘/袖摆/前襟） |
+| 符文亮起 | `runes igniting one after another across the sleeves` | 从哪亮起、往哪走 |
+| 织纹自发光 | `woven pattern faintly glowing from within the fabric` | 整片 / 局部 |
+| 衣摆能量化 | `the hem dissolving into drifting embers` | 从下往上多少 |
+| 材质渐变 | `fabric gradient shifting from silk to crystal at the shoulders` | 过渡带位置 |
+| 甲片反光 | `metal scales catching a cold rim light along the shoulder line` | 哪一片、什么光 |
+
+**三条写法约束**：
+
+1. **只在一处起效**：`光缕沿裙缘游走` 比 `全身发光` 稳定十倍。全身发光 = 过曝 + 看不清剪影。
+2. **必须有主体或部位**：`光纹顺着她的腰线爬上袖口`（依附主体，见 §一.2）。
+3. **亮度要约束**：`发光但布纹仍可见，不死白`——否则布料细节全被烧掉。
+
+**中英对照速查**：
+
+```
+光缕沿裙缘游走        thin light threads travelling along the hem
+符文在袖口依次亮起     runes igniting one by one across the cuffs
+织纹自内透光          the weave glowing faintly from within
+裙摆化灰              the hem crumbling into drifting ash
+肩甲冷冽反光          shoulder plates catching a cold rim light
+```
+
+**反向**：`glow everywhere, blown-out fabric, uniform emissive, white-clipped light, pattern lost in bloom`
+
 ---
 
 ## 三、把特效写成时间线（三段句）
@@ -178,6 +210,44 @@ background motion blur, subject in sharp focus
 | 噪声 | `subtle film grain, analog noise`（让亮部不均匀） |
 | 疏密 | 一颗大光源带六七颗小的（比三十颗等大好得多） |
 | 方向统一 | 所有光晕往同一侧偏（一侧偏=有风；四面都闪=着火） |
+
+---
+
+## 六·五、体积感：三条物理条件（不写就永远是"贴纸特效"）
+
+### 1. 体积光必须有介质，否则出不来光柱
+
+模型不会凭空算散射——**你得先告诉它"空气里有东西"**。
+
+| 无效（只有光源） | 有效（给了介质） |
+|---|---|
+| 明亮的阳光从窗户照进来 | 强烈晨光切过积尘的窗，重度体积散射，光束里浮尘清晰可见，强烈明暗对比 |
+
+关键词：`dust motes in light beam` / `heavy volumetric scattering` / `sunbeams visible in the haze`
+
+> 这也是量测数据里"性价比最高、几乎不翻车"的一组词——**因为它是唯一能强制模型去算光在介质里怎么走的写法。**
+
+### 2. 流体要写三个属性，不是四个形容词
+
+```
+粘度（thick / ethereal / dense）
+湍流与速度（swirling / violent / crawling / slow-motion）
+与光的交互（refraction / backlighting / self-illumination）
+```
+
+只写"浓烟滚滚"——模型给你一团灰色棉花。三个属性写齐，它才知道该往哪个方向解。
+
+### 3. 镜头缺陷才是真实感来源
+
+干净的画面像渲染图，**有缺陷的画面才像摄影**。三件套：
+
+```
+anamorphic lens flare（水平蓝色变形光斑）
+shallow depth of field, 85mm f/1.4（写清镜头物理，不写"背景虚化"）
+slight chromatic aberration on the edges（边缘轻微色差）
+```
+
+**代价**：三件套全上会抢主体。**主特效片最多用两件**，且光斑不要压在脸上。
 
 ---
 
@@ -309,7 +379,7 @@ cartoonish explosion, glow everywhere
 
 ---
 
-## 十二、十项自检
+## 十二、十二项自检
 
 - [ ] 特效写成了**事件**（成因/发展/消散），不是状态
 - [ ] 每个特效句里都有主体（防淹没）
@@ -321,3 +391,5 @@ cartoonish explosion, glow everywhere
 - [ ] 介质 ≤2 层，主光色 ≤2 种
 - [ ] 动态模糊写了"主体清晰"
 - [ ] 与主风格不冲突（对照矩阵）
+- [ ] 写了体积光就写了介质（`dust motes in light beam`），否则没有光柱
+- [ ] 流体写了粘度 + 湍流速度 + 与光交互三者，镜头缺陷至多两件

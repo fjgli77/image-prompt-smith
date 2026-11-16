@@ -1,8 +1,8 @@
-# 3D 动漫人物：五条路线与专用词法
+# 3D 动漫人物：六条路线与专用词法
 
 > 这一份补 `render-styles.md` 没覆盖的那条轴：**"3D 的动漫人物"到底有几种**。
 > 很多人写"3D 动漫"，模型给他一个塑料手办；写"二次元 3D"，给他一张贴纸。
-> 原因是**"3D 动漫"是五条互斥的路线，不是一种风格**。
+> 原因是**"3D 动漫"是六条互斥的路线，不是一种风格**。
 
 ---
 
@@ -15,6 +15,7 @@
 | **③ 国漫半写实（原神/崩铁向）** | 五官精致、材质华丽、光影有层次 | 体积光 + 手绘感过渡 | 7–7.5 | 游戏立绘、国潮 KV |
 | **④ 皮克斯/迪士尼卡通** | 圆润、弹性、夸张表情 | 柔和物理光照 + SSS | 5.5–6.5 | 合家欢、IP 形象 |
 | **⑤ 风格化手绘 3D** | 有笔刷感的多边形块面 | 大色块明暗，手绘边缘不齐 | 6–7 | 艺术短片、绘本动画 |
+| **⑥ UE 影视级玄幻 CG** | 真人级渲染 + 动漫化精致五官，像国产玄幻剧 CG | 影视级物理光照（Lumen）+ SSS，但有动漫骨相 | 7–7.5 | 玄幻剧 CG、游戏 CG 预告 |
 
 **判定口诀：写死影子写法 = 写死流派。**
 
@@ -22,6 +23,7 @@
 - 皮克斯 → `volumetric physical lighting, subsurface scattering, ambient occlusion in creases`
 - 国漫半写实 → `painterly shading, cinematic key light, rim light on hair edges`
 - 手绘 3D → `broad graphic shadow masses, painterly value transitions, irregular painted edges`
+- UE 影视级玄幻 → `Lumen global illumination, subsurface scattering skin, filmic tone mapping, sculpted anime features`
 
 **只写"3D 动漫"= 让模型在五条路线里随机抽。** 必须点名路线。
 
@@ -55,6 +57,9 @@ path-traced render, ambient occlusion in creases, rim light, cinematic depth of 
 ---
 
 ## 三、比例锚（不写就往可爱漂）
+
+> **头身比以 `render-styles.md` §一「头身比唯一表」为准**，下表只是路线侧的"其他必写项"补充。
+> 单独说"3D"时默认 7.5–8；**只有说了"动漫 / 三渲二 / 国漫"才落到 6.5–7.5**。
 
 | 路线 | 头身比 | 其他必写 |
 |---|---|---|
@@ -156,6 +161,35 @@ realistic eyes with catchlight, global illumination, cinematic rim light,
 
 ---
 
+### ⑥ UE 影视级玄幻 CG（国产玄幻剧 / 游戏 CG 预告）
+
+> **这一条是「全 3D 写实」与「国漫半写实」的交叉产物**：渲染语义走①（PBR / GI / SSS），
+> 五官逻辑走③（雕刻眼睑、虹膜径向渐变、简化鼻翼）。五条路线里没有一条对得上，所以单列。
+
+```
+cinematic UE5 CG render of a Chinese fantasy character, film-grade production still,
+Lumen global illumination with volumetrics, subsurface scattering skin,
+filmic tone mapping, physically based hair with strand-level specular,
+sculpted anime features: large eyes with defined eyelids, iris radial gradient,
+two specular highlights, simplified nose with soft tip highlight, thin upper lash as geometry,
+7–7.5 head proportion, elongated silhouette, layered silk costume with subsurface fabric,
+subtle rim light separating the figure from atmosphere,
+fine airborne dust in light shafts, shallow depth of field, no visible polygons
+```
+
+**影子写法**：`Lumen GI + SSS + filmic tone mapping`（渲染层）＋ `sculpted anime features`（五官层）。
+**只写前者 → 出真人**；**只写后者 → 出塑料游戏模型**。**两层必须同时给。**
+
+反向：`photorealistic pores, real human skin texture, cel shading flat colors, chibi, plastic toy, low-poly, game HUD`
+
+| 与其他路线的区别 | 差异点 |
+|---|---|
+| vs ① 全 3D 写实 | ①写"真人毛孔与绒毛"，⑥必须 **禁毛孔**、五官是雕刻化动漫骨相 |
+| vs ③ 国漫半写实 | ③是手绘感过渡（painterly shading），⑥是**影视物理光照**（Lumen/filmic），更像实拍 |
+| vs ② 三渲二 | ②要硬边两档，⑥要连续过渡 + 真实反射 |
+
+---
+
 ## 六、即梦 / Seedream 的三大硬伤与修正句式
 
 实测最常出的三个问题，以及可直接粘的修正段（中文平台直接吃）：
@@ -200,6 +234,8 @@ realistic eyes with catchlight, global illumination, cinematic rim light,
 | 脸歪眼斜 | 缺结构约束 | 上第六节修正段 1 |
 | 手糊成一团 | 手是全模型最难部位 | 藏手 / 写五指标 / 局部重绘 |
 | 画面发灰 | 只有 AO 没有主光方向 | 补主光方位 + 光比，`ambient occlusion only in creases` |
+| 玄幻 CG 出成真人 | 只写了 UE/Lumen，没写动漫五官 | 补 `sculpted anime features, no pores` |
+| 玄幻 CG 出成塑料手办 | 只写了动漫五官，没写影视光照 | 补 `Lumen GI, filmic tone mapping, SSS` |
 
 ---
 
@@ -268,7 +304,7 @@ loose folds above and below the elbow, clean surface at the joint
 
 ## 十、一张自检表
 
-- [ ] 点名了五条路线中的哪一条（不是"3D 动漫"四个字）
+- [ ] 点名了六条路线中的哪一条（不是"3D 动漫"四个字）
 - [ ] 头身比写死
 - [ ] 影子写法与路线一致（硬边 / 体积 / 色块）
 - [ ] 有材质语义（SSS / matte / 金属反射）而不是只有"3D 渲染"
