@@ -47,6 +47,34 @@ warm amber and oat tones, 85mm lens, f/2.8, shallow depth of field,
 generous empty space on the upper third --ar 3:4 --style raw --stylize 150 --no text
 ```
 
+### MJ 附：电影外景剧照骨架（整段可粘）
+
+用户要"电影剧照感 / 现场抓拍 / 写实人像"，且只要一条能直接粘的咒语时，用这套**固定系统**。
+它把镜头、景别、画质、负向全部定死，只留三个变量：`{char}` `{env}` `{ratio}`。
+
+```
+Cinematic film still, documentary decisive moment shot, eye-level human perspective, 35mm full-frame cinema prime lens, rule of thirds composition, cinematic shallow depth of field, deep scene perspective, character framed from head to above the calves.
+Character: {char}
+Environment & Atmosphere: {env}
+Natural physical lighting driven by scene ambient light, realistic shadow layering, accurate material reflection, subtle atmospheric haze, faint natural Tyndall effect, lifelike skin micro-texture, natural restrained facial expression.
+Shot on ARRI Alexa Mini LF, natural 35mm film grain, authentic Kodak cinematic color grading, pure on-location real photography texture, photorealistic, high detail, --ar {ratio} --style raw
+```
+
+负向单起一行，**不塞进正向，也不加权重**（`--no` 已是负权重处理）：
+
+```
+--no deformed anatomy, distorted limbs, bad anatomy, unnatural body proportion, plastic skin, rubber mask, fake pores, CG rendering, 3D render, game screenshot, anime, illustration, painting, cartoon, oversaturated colors, exaggerated neon glow, blurry, ugly, disfigured, extra people, text, letters, logos, signs, symbols, watermarks, wrong framing, cut off awkwardly, cut above thighs only, cut below calves
+```
+
+**四条纪律**（这套骨架崩，几乎都崩在这四条）：
+
+1. **景别固定「头到小腿以上」**——不裁在大腿，不裁到脚踝以下。因此画幅默认 **3:4**（竖向才容得下）。
+   用户给 2:3 / 4:3 时，选清单里最接近的 3:4，**并在交付时说明替换了什么，不要静默改**。
+2. **环境里必须点明主光源**（窗 / 灯 / 天光 / 水面反射）。"物理光照"是从场景里推出来的，场景不说光，这层就是空话。
+3. **招牌与文字换无字等价物**。写"写着营业中的招牌"→ MJ 必出乱码；改成 `glowing light-bar signage`，只留光形不留字。
+4. **不要在这一条上加 `8k, masterpiece`**。这套骨架靠胶片与镜头规格撑质感，堆质量词反而把 Kodak 调色压掉。
+
+
 ### Stable Diffusion / ComfyUI
 
 **要做**：

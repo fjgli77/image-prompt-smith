@@ -1,6 +1,10 @@
 # 发布产物
 *.zip
 
+# 非运行时内容，不入库（同步脚本也已排除）
+dist/
+docs/
+
 # Python
 __pycache__/
 *.py[cod]
