@@ -15,6 +15,7 @@
 | **Nano Banana Pro**（Gemini 3 Pro Image） | 中英皆可，英文更精确 | 结构化长指令（可分段/JSON） | 不吃权重 | 写"禁止项"段落 | 强 | 100–300 词 | 当需求文档写，可给约束清单 |
 | **GPT Image 2** | 英文优先 | 自然语言指令 | 不吃权重 | 正向否定句 | 强 | 50–150 词 | 最擅长按指令改图，对话式迭代 |
 | **Seedream 5.0 Pro**（即梦 / 豆包） | **中文原生** | 版式结构 → 形态 → 文案 → 位置 | 不吃权重 | 末尾排除项 | 强（中文优） | 60–150 字 | 当中文设计需求写，具体名称胜笼统 |
+| **可灵 Kling Image 4.0** | 中文优先 | 主体 + 动作 + 场景 + 镜头 + 光 + 节奏 | 不吃权重 | **无独立框**，正向/负向混写 | 弱（后期叠） | 网页 ≤500 字符 | 像描述一张**已经拍好的照片**，不给评价词 |
 | **通义万相** | 中文 | 自然语言 + 支持负向 | 弱 | 独立负向框 | 中 | 40–100 字 | 中文语义好，风格化强 |
 | **Ideogram** | 英文 | 自然语言 + typography 指令 | 弱 | 弱 | **最强（排版）** | 30–80 词 | 赌文字就找它 |
 
@@ -46,6 +47,34 @@ dried maple leaves scattered, autumn morning light raking from the left window,
 warm amber and oat tones, 85mm lens, f/2.8, shallow depth of field,
 generous empty space on the upper third --ar 3:4 --style raw --stylize 150 --no text
 ```
+
+### MJ 附：电影外景剧照骨架（整段可粘）
+
+用户要"电影剧照感 / 现场抓拍 / 写实人像"，且只要一条能直接粘的咒语时，用这套**固定系统**。
+它把镜头、景别、画质、负向全部定死，只留三个变量：`{char}` `{env}` `{ratio}`。
+
+```
+Cinematic film still, documentary decisive moment shot, eye-level human perspective, 35mm full-frame cinema prime lens, rule of thirds composition, cinematic shallow depth of field, deep scene perspective, character framed from head to above the calves.
+Character: {char}
+Environment & Atmosphere: {env}
+Natural physical lighting driven by scene ambient light, realistic shadow layering, accurate material reflection, subtle atmospheric haze, faint natural Tyndall effect, lifelike skin micro-texture, natural restrained facial expression.
+Shot on ARRI Alexa Mini LF, natural 35mm film grain, authentic Kodak cinematic color grading, pure on-location real photography texture, photorealistic, high detail, --ar {ratio} --style raw
+```
+
+负向单起一行，**不塞进正向，也不加权重**（`--no` 已是负权重处理）：
+
+```
+--no deformed anatomy, distorted limbs, bad anatomy, unnatural body proportion, plastic skin, rubber mask, fake pores, CG rendering, 3D render, game screenshot, anime, illustration, painting, cartoon, oversaturated colors, exaggerated neon glow, blurry, ugly, disfigured, extra people, text, letters, logos, signs, symbols, watermarks, wrong framing, cut off awkwardly, cut above thighs only, cut below calves
+```
+
+**四条纪律**（这套骨架崩，几乎都崩在这四条）：
+
+1. **景别固定「头到小腿以上」**——不裁在大腿，不裁到脚踝以下。因此画幅默认 **3:4**（竖向才容得下）。
+   用户给 2:3 / 4:3 时，选清单里最接近的 3:4，**并在交付时说明替换了什么，不要静默改**。
+2. **环境里必须点明主光源**（窗 / 灯 / 天光 / 水面反射）。"物理光照"是从场景里推出来的，场景不说光，这层就是空话。
+3. **招牌与文字换无字等价物**。写"写着营业中的招牌"→ MJ 必出乱码；改成 `glowing light-bar signage`，只留光形不留字。
+4. **不要在这一条上加 `8k, masterpiece`**。这套骨架靠胶片与镜头规格撑质感，堆质量词反而把 Kodak 调色压掉。
+
 
 ### Stable Diffusion / ComfyUI
 
@@ -116,21 +145,56 @@ The upper third of the frame is empty.
 禁止：不得出现任何文字、字母、数字、logo、水印；不得添加其他杯具或人物；不得改变杯子形状。
 ```
 
-### GPT Image 2
+### GPT Image（ChatGPT 出图 / gpt-image）
 
-**要做**：
-- 自然语言，一次说清"要什么 + 不要什么"
-- 编辑场景：先说**必须保持不变的部分**，再说**要改的那一处**
-- 可以对话式迭代（"把光改成傍晚，其他不动"）
+**它的强项不是"画得准"，是"听得懂"。** 指令跟随、数量与位置、局部编辑是三家最强，但它**没有负向框**，也没有参数。
 
-**示例**
+#### 一、生成式：一句话用途 + 四段画面
 
 ```
-Create a 3:4 editorial still life: one matte cream ceramic cup of black coffee on a
-weathered oak table, three dried maple leaves beside it. Soft window light from the
-left, warm 3800K, shallow depth of field, 85mm look. Keep the upper third of the frame
-empty. Do not include any text, logos, people, or additional tableware.
+一句用途（这张图干什么用）→ 主体与动作 → 构图与镜头 → 光与材质 → 排除项（正向化）
 ```
+
+```
+Create a 3:4 editorial still life for a coffee brand's autumn campaign:
+one matte cream ceramic cup of black coffee on a weathered oak table, three dried
+maple leaves beside it. Soft window light from the left, warm 3800K, shallow depth
+of field, 85mm look. Keep the upper third of the frame empty. The surface stays clean
+and unmarked; only the cup and leaves are present.
+```
+
+**为什么第一句要写用途**：它会把"商业产品图 / 社论配图 / 表情包"这些推理层调起来，出来的东西自动贴用途，比堆形容词有效。
+
+#### 二、编辑式：七段（这是它真正的杀手锏）
+
+改图时不要重写整段描述，按七段写：
+
+| 段 | 写什么 | 例 |
+|---|---|---|
+| **① 动作** | remove / replace / add / recolor / restyle | `Replace the background behind the figure` |
+| **② 目标** | 点名具体物体或区域 | `the grey wall behind her right shoulder` |
+| **③ 外观** | 换成什么 | `with a plain light-grey studio backdrop` |
+| **④ 几何** | 位置/尺度/透视/朝向 | `edge to edge, same perspective, horizon unchanged` |
+| **⑤ 光照** | 匹配原图阴影、反射、色温 | `match the original soft side light and 5200K` |
+| **⑥ 保真** | **必须不变的部分，逐项列出** | `Keep the face, hair, clothing, pose, camera angle and framing exactly the same` |
+| **⑦ 用途** | 这张图给谁看 | `for a product page hero` |
+
+**保真句是这套的核心**，照抄这句式：
+
+```
+Keep the character exactly the same: do not change the face shape, eyes, hairstyle,
+clothing details, colors, proportions, camera angle, or position.
+Change only the background.
+```
+
+**七段缺一就会"顺手美化"**——它会把脸也重画一遍，而且画得比原来"标准"，于是就不像了。
+
+#### 三、别做
+
+- ❌ 写 `negative prompt:` 或 `--no` → 无效，只有正向否定句
+- ❌ 堆 `masterpiece, 8k` → 它按指令走，不看这些
+- ❌ 一次改三处 → 会整张重绘；**一次一处，改完再改下一处**
+- ❌ 依赖它写长文案 / 精确 logo → 文字能力有，但**长句与品牌标识仍不稳**，商业稿后期贴回
 
 ### Seedream 5.0 Pro（即梦 / 豆包）
 
@@ -160,6 +224,74 @@ empty. Do not include any text, logos, people, or additional tableware.
 - 风格化（国风/油画/水彩）表现好
 - 中文文字能力一般，海报类仍建议后期叠字
 
+### 可灵 Kling（Image 4.0）
+
+**核心心法：像描述一张已经拍好的照片。** 不是提需求，是**复述你看到的画面**——位置、朝向、五官、服装、光位、镜头，一样一样铺开，一句评价词都不要。
+
+#### 一、官方六段结构
+
+```
+主体 + 动作 + 场景 + 镜头 + 光 + 节奏
+```
+
+| 段 | 写什么 | 例 |
+|---|---|---|
+| 主体 | 外貌、服装、**在画面什么位置** | 年轻东亚女性，位于画面中央偏下 |
+| 动作 | **一个**看得见的动作 | 背对画面，头部向左后方转动，面朝镜头 |
+| 场景 | 地点 + 关键物件 | 老旧城区天台，斑驳水泥地，低矮白色护栏 |
+| 镜头 | 景别 + 机位 + 焦段 + 景深 | 中焦，平视，近景平拍，中光圈中景深 |
+| 光 | 方向 + 性质 + 色温 + 对比 | 45° 斜侧光，硬光，冷暖对比，整体偏暖 |
+| 节奏 | 一张静图写"瞬间感" | 午后独自发呆时被镜头捕捉的一瞬 |
+
+#### 二、官方式铺开顺序（照着写就不空洞）
+
+```
+① 位置 → ② 朝向与视线 → ③ 五官（脸型/肤色/身材）→ ④ 发型发色
+→ ⑤ 服装（款式→图案→材质→贴合感）→ ⑥ 时间天气光位
+→ ⑦ 镜头（焦段/机位/景别/景深）→ ⑧ 背景物件 → ⑨ 前景遮挡
+```
+
+这套顺序的价值：**它把"氛围"翻译成了可数的物件**。写完数一下 ⑧ 里点了几件东西，少于三件背景必空。
+
+#### 三、抽象词必须换具体（官方明确列了这条）
+
+| ❌ 官方不推荐 | ✅ 换成 |
+|---|---|
+| 高级感 / premium look | 侧逆光勾出轮廓，背景虚化，表面可见细腻哑光颗粒 |
+| 复古感 / vintage feel | 泛黄墙面、家具边缘磨损、暖色白炽灯 |
+| 中产家庭厨房 | 木纹橱柜、台面上有电饭煲与调料罐、冰箱门贴着便利贴 |
+| 不要露出打电话的人的脸 | 人物以侧脸出现，正在通电话 |
+
+**规律**：评价词换成"能看见什么"，否定句换成"正面描述你想要的"。
+
+#### 四、参考图必须指派角色（不指派它会自己猜）
+
+```
+@图1 定义场景：保留其空间布局、陈设与光线。
+@图2 定义女主角：保留其五官、发型与服装。
+```
+
+**只给图不说用途 = 结果不可控**，这是可灵官方文档点名的坑。
+
+#### 五、负向与长度
+
+- **没有独立负向框**：API 的 prompt 允许"正向与负向描述混写"，网页端同理 → 排除项写成一句 `画面中不出现任何文字、水印、第二个人物`
+- **网页端 ≤500 字符**（比即梦的 800 还紧），API 端宽松得多但长了照样掉元素
+- **图内文字弱**：海报文字一律后期叠，别赌
+
+#### 六、完整示例（可直接改字）
+
+```
+3:4 竖版，中景人像。一位二十多岁的东亚女性站在老旧城区天台的水泥地上，
+位于画面左侧偏下，身体朝向画面右侧呈半侧身，头部微抬，视线望向左上方天空，
+表情安静疏离。圆润脸型，肤色自然偏暖，黑色齐耳短发，厚齐刘海。
+身穿黑色无袖连衣裙，裙面有细小白色波点，领口带蕾丝与细褶，面料轻薄贴垂。
+秋季晴天午后，自然光以 45° 斜侧硬光入射，投下斑驳光影，冷暖对比明显偏暖。
+中焦镜头，略低于面部高度的轻微仰拍，中景深，背景略微虚化。
+背景为灰白水泥墙与橙黄枝叶，前景一根暗红金属扶手斜向压角，不遮挡人物。
+画面中不出现任何文字、水印与第二个人物。
+```
+
 ### Ideogram
 
 - 英文，专为 typography 优化；需要**图上真实排版**时首选
@@ -177,7 +309,8 @@ empty. Do not include any text, logos, people, or additional tableware.
 3. **权重**：删掉/加上 `(x:1.3)`
 4. **反向**：独立 negative ↔ `--no` ↔ 正向否定句 ↔ 末尾排除段
 5. **参数**：`--ar` ↔ 尺寸比例字段 ↔ 正文比例描述
-6. **长度**：MJ 砍到 60 词；Nano Banana 可扩到 300 词
+   注意 **GPT Image 与可灵不是"参数式"平台**：比例写进正文（`3:4 竖版`），没有 `--ar`、没有权重
+6. **长度**：MJ 砍到 20–35 词；**可灵网页端砍到 500 字符**；Nano Banana 可扩到 100 词
 7. **能力补偿**：目标平台文字弱 → 删掉文字期望，改"假文字 + 后期"
 
 **迁移完成的标准**：把两个版本并排读，**画面信息量一致，句法完全不像**。
@@ -196,15 +329,19 @@ empty. Do not include any text, logos, people, or additional tableware.
 | 精确构图控制 | SDXL + ControlNet | Flux + 参考图 |
 | 艺术风格探索 | MJ v7 `--sref` | Flux |
 | 快速草稿 | Nano Banana 2 Lite / Seedream Flash | MJ `--draft` |
-| 按指令精细改图 | GPT Image 2 | Nano Banana Pro |
-| 中文语义理解 | Seedream / 通义万相 | — |
+| 按指令精细改图 | **GPT Image**（七段编辑式） | Nano Banana Pro |
+| **中文写实人像 / 纪实生活感** | **可灵 Image 4.0** | Seedream 5.0 Pro |
+| **中文 + 空间位置要求很具体** | **可灵**（位置/朝向写进正文） | Seedream |
+| 中文语义理解 | Seedream / 通义万相 / 可灵 | — |
 
 ---
 
-## 五、最容易翻车的五个方言坑
+## 五、最容易翻车的七个方言坑
 
 1. **把 SD 标签喂 MJ** → 出图平庸且油腻。MJ 要句子。
 2. **给 Seedream 写英文长句** → 中文平台优势全废。
 3. **给 Nano Banana 写 20 词短句** → 它有能力吃 300 词结构化指令，你浪费了。
 4. **在 Flux 里写 `no text`** → 它可能真的画出 "no text" 字样。写 `the image contains no lettering` 或 `a plain blank surface`。
 5. **跨平台只换语言不换语序** → 权重散掉，主体变淡。
+6. **给可灵写"高级感 / 氛围感"** → 官方明确不推荐：它会把评价词当噪声。换成一串可数的物件与光位。
+7. **给 GPT Image 编辑时不写保真项** → 它会把脸也"顺手美化"一遍，于是不像了。必须逐项列 `keep … exactly the same`。
