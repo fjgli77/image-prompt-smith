@@ -89,6 +89,52 @@
 **材质混搭纪律**：**一件主材 + 一件对比材 + 一件点缀材**。
 例：`丝缎（主）+ 哑光金属（对比）+ 玉（点缀）`。三种以上的主材 = 视觉无重点。
 
+### 3.1 材质三件套：主材质 + 质感修饰 + 光泽垂坠
+
+**只写材质名 = 没写。** 单写 `silk` / `leather` 必出塑料或布贴图。
+
+| 单写（必崩） | 三件套 |
+|---|---|
+| silk | `silk fabric, smooth lustrous surface, subtle sheen, flowing drape` |
+| leather | `distressed leather, natural grain, satin finish with polished toe` |
+| knitwear | `visible knit texture, ribbed cuffs, soft matte surface` |
+| linen | `coarse linen weave, visible slubs, matte with crisp folds` |
+| satin | `satin, high specular sheen, weighty folds pooling at the hem` |
+
+**三件各管一件事**：材质名定身份，质感修饰定表面，光泽/垂坠定它与光的关系。
+
+### 3.2 皮革四态（最实用的一张对照表）
+
+同一种皮，四种处理，四种反光，四种崩法：
+
+| 皮面 | 反光特征 | 写法 | 崩法 |
+|---|---|---|---|
+| **光面** | 整片柔光，边缘回弹 | `polished calf leather` | 反光过曝，像塑料 |
+| **油蜡** | 哑中带油，光晕成片 | `oil-waxed leather, subtle sheen, pull-up effect` | 误写成 `waxed fabric`，出防水布感 |
+| **漆皮** | 镜面，高光成条 | `patent leather, hard specular highlight` | 高光失控，整件变雨靴 |
+| **磨砂/翻毛** | 不反光，看绒面过渡 | `matte nubuck, fine nap, short nap, soft falloff` | 被画成普通布面，皮感全失 |
+
+**皮革想真，必须补"工艺痕迹"**：
+
+| 痕 | 写法 | 作用 |
+|---|---|---|
+| 缝线 | `visible saddle stitching`（粗斜马鞍缝）、`contrast thread`（撞色线）、`double stitching` | 证明"这是一件成品"，不是一块料 |
+| 磨损 | `worn edges`（边缘磨白）、`scuffed corners`（磕碰的角）、`creases at elbows`（肘弯褶） | 证明"用过" |
+| 包浆 | `patina on the contact areas` | 高频接触处发亮，是高级感的来源 |
+
+> **位置要点名**：缝线写在下摆/包盖边缘/袖口，磨损写在手肘/膝/鞋头。不点名 = 随机撒。
+
+### 3.3 褶皱要写受力方向
+
+`folds` 无效——模型知道有褶，不知道往哪折。
+
+| 受力 | 写法 |
+|---|---|
+| 重力 | `gravity drapes, vertical folds pooling at the ankles` |
+| 风 | `windblown folds, fabric pulled taut on the windward side` |
+| 动作挤压 | `stress wrinkles at the armpit and elbow, compression folds at the waist` |
+| 湿 | `wet fabric clinging, darker where it touches the skin` |
+
 ---
 
 ## 四、结构槽位清单（写完自查，缺一件就少一块设计）

@@ -182,14 +182,18 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 │   ├── 11-style-block.md      九槽风格区间块
 │   ├── 12-reference-and-multiframe.md  多格与参考图
 │   ├── 13-game-concept.md     游戏概念设计（五产出 × 五画风 × IP 转译）
-│   └── character/             31 份人物参考
+│   ├── 14-compress.md         压缩规程（全平台上限矩阵 + 四档 + 六刀 + 红线）
+│   └── character/             34 份人物参考
 │       ├── image-types.md          36 种图型（核心）
 │       ├── body-parts.md           部位词法（头到脚，按景别裁剪）
+│       ├── face-spec.md            面部十一格（骨相/眼型/距离/特征）
+│       ├── footwear.md             鞋靴四层（鞋面/鞋底/楦型/工艺）
 │       ├── vfx.md                  特效层（事件化写法 + 体积感三条件）
 │       ├── aesthetics.md           角色美学六轴（形状 / 剪影 / 体块 / 动态线）
 │       ├── anime-3d.md             3D 动漫五条路线
 │       ├── low-poly.md             低模面数预算法
 │       ├── fantasy-elements.md     玄幻六类零件 + 方位槽位 + epic 档
+│       ├── weapons.md              武器（四段词法 + 品阶定光 + 飞剑六态 + 剑气六形 + 奇门）
 │       ├── scene-space.md          场景三层 + 接触/反光/遮挡 + 题材场景包
 │       ├── costume-structure.md    分层四件 + 甲胄三层 + 轻装覆盖分区 + 服装锚点
 │       ├── style-atlas.md          A–M 十四格流派图鉴（画法/哪一家）
@@ -202,7 +206,7 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 │       ├── cross-model.md          跨模型迁移
 │       └── …                       服装 / 表情 / 档案 / 一致性 / 提问卡
 ├── scripts/
-│   ├── prompt_lint.py        27 类机检 / 32 条自测（零依赖）
+│   ├── prompt_lint.py        28 类机检 / 38 条自测（零依赖）
 │   ├── image_prep.py         反推前置：转码/去边/裁切/缩放/切格（需 Pillow）
 │   └── prompt_diff.py        两版提示词的锚点漂移核对（六组锚点，零依赖）
 ├── examples/                  4 个完整走查
@@ -223,6 +227,8 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 ## 设计依据
 
 这套东西不是拍脑袋写的，几轮调研的记录都在 `docs/` 里：
+
+> **发布包里不含 `docs/` 与 `dist/`**——这两处是仓库内部文档，只随源码仓库分发。下表仅为仓库索引。
 
 | 文档 | 内容 |
 |---|---|

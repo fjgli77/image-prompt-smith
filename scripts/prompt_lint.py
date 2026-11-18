@@ -32,9 +32,9 @@ for _stream in (sys.stdout, sys.stderr):
 
 # ---------------------------------------------------------------- 词表
 
-PLATFORMS = ["mj", "sd", "flux", "nano_banana", "gpt_image", "seedream", "wanx", "ideogram", "unknown"]
+PLATFORMS = ["mj", "sd", "flux", "nano_banana", "gpt_image", "seedream", "wanx", "kling", "ideogram", "unknown"]
 
-PURPOSES = ["poster", "cover", "ecommerce", "banner", "article", "avatar", "portrait", "infographic", "wallpaper", "asset", "turnaround", "character_sheet", "profile_page", "model3d", "general"]
+PURPOSES = ["poster", "cover", "ecommerce", "banner", "article", "avatar", "portrait", "infographic", "wallpaper", "asset", "turnaround", "character_sheet", "profile_page", "model3d", "edit", "general"]
 
 # 需要显式画幅的用途
 NEEDS_RATIO = {"poster", "cover", "ecommerce", "banner", "infographic", "wallpaper", "avatar", "portrait",
@@ -43,19 +43,29 @@ NEEDS_RATIO = {"poster", "cover", "ecommerce", "banner", "infographic", "wallpap
 # 展示型设定稿：给人看的设定页，不是给下游用的资产图——建模五项对它不适用
 SHOWCASE_PURPOSES = {"turnaround", "character_sheet", "profile_page"}
 
-# 长度三档：short 给标签派 / standard 默认 / long 给长中文描述
+# 长度三档：short / standard（默认）/ long
+# 口径依据：即梦接口文档「prompt 最长不超过 800 字符」；Seedream 官方建议 ≤300 汉字；
+#           字节 Seed 论文实测「长度收益快速饱和」——故标准档收到 280 字以内。
 LENGTH_TIERS = {
-    "mj": (400, 700, 900),
-    "sd": (900, 1500, 2000),
-    "flux": (700, 1200, 1800),
-    "nano_banana": (1200, 2500, 3500),
-    "gpt_image": (800, 1500, 2200),
-    "seedream": (600, 900, 1600),
-    "wanx": (600, 900, 1600),
-    "ideogram": (400, 600, 900),
-    "unknown": (700, 1200, 3000),
+    "mj": (150, 300, 450),
+    "sd": (300, 600, 900),
+    "flux": (250, 500, 800),
+    "nano_banana": (300, 600, 1000),
+    "gpt_image": (250, 500, 800),
+    "seedream": (90, 280, 480),
+    "wanx": (90, 280, 480),
+    "kling": (90, 300, 420),
+    "ideogram": (150, 300, 500),
+    "unknown": (200, 400, 700),
 }
 LENGTH_TIER_IDX = {"short": 0, "standard": 1, "long": 2}
+
+# 平台硬上限（接口限制，不是建议）：超过有概率出图异常或不生效
+HARD_CAP = {
+    "seedream": 800,   # 即梦/Seedream 4.6 接口文档：prompt 最长不超过 800 字符
+    "wanx": 2000,      # 万相 wan2.6：正向 ≤2000 字符，超出自动截断
+    "kling": 500,      # 可灵网页端：字数不超过 500 个字符（API 端宽松得多）
+}
 
 LIGHT_WORDS = [
     "光", "逆光", "侧光", "顺光", "顶光", "底光", "柔光", "硬光", "窗光", "体积光",
@@ -159,7 +169,7 @@ REF_RE = re.compile(
     re.I,
 )
 REF_ROLE_RE = re.compile(r"(只用来|只取|只作|仅取|只确定|不按这张图|完全不按|只用它|以上述图为唯一)", re.I)
-COUNT_RE = re.compile(r"([2-9]|\d{2,}|[二两三四五六七八九十])\s*(只|个|人|件|位)[^，。；,;]{0,6}(猫|狗|人|杯|瓶|孩子|模特|主体|物品)")
+COUNT_RE = re.compile(r"(?<!第)([2-9]|\d{2,}|[二两三四五六七八九十])\s*(只|个|人|件|位)[^，。；,;]{0,6}(猫|狗|人|杯|瓶|孩子|模特|主体|物品)")
 TOTAL_RE = re.compile(r"(总数|严格等于|仅此|只有\s*[0-9一二两三四五六七八九十]|共\s*[0-9一二两三四五六七八九十])", re.I)
 
 # 3D 动漫：五条互斥路线，写"3D 动漫"四个字等于没写路线
@@ -331,6 +341,12 @@ BEAUTY_CLICHE = [
     "九头身", "修长双腿", "完美五官", "网红脸", "顶级美女", "天使面孔",
     "绝世美女", "神颜", "超模脸", "零瑕疵肌肤", "黄金比例身材",
     "perfect features", "flawless skin", "model face",
+]
+
+# 动漫/国漫体系里「九头身」是比例规格，不是美颜套话——命中下列词时豁免该项
+ANIME_SPEC_WORDS = [
+    "国漫", "3D动漫", "3D国漫", "三渲二", "赛璐璐", "NPR", "二次元", "动漫风",
+    "日式", "anime", "cel shading", "九头身比例",
 ]
 
 AUTEUR_WORDS = [    "王家卫", "徐克", "袁和平", "张艺谋", "朴赞郁", "大卫·芬奇", "诺兰",
@@ -535,6 +551,9 @@ def lint(text: str, platform: str = "unknown", purpose: str = "general",
     # 3D 生成简报（text→3D / image→3D）：没有相机、没有画幅、没有打光，这三类结构检查不适用
     d3_brief = (purpose == "model3d")
 
+    # 改图（GPT Image 七段式 / 可灵参考图）：镜头与风格沿用原图，不重写，故不查这两段
+    edit_brief = (purpose == "edit")
+
     # 1) 结构缺格
     if not d3_brief:
         if not find_terms(text, LIGHT_WORDS) and not KELVIN_RE.search(text):
@@ -549,11 +568,11 @@ def lint(text: str, platform: str = "unknown", purpose: str = "general",
             res.issues.append(Issue("P2", "结构", "有光但无光位（只写了柔和/明亮）",
                                     "光位缺失 = 平光 = 廉价感；补『45° 侧光』这类方向词"))
 
-    if not tech_fig and not d3_brief and not find_terms(text, CAMERA_WORDS) and not CAMERA_RE.search(text):
+    if not tech_fig and not d3_brief and not edit_brief and not find_terms(text, CAMERA_WORDS) and not CAMERA_RE.search(text):
         res.issues.append(Issue("P1", "结构", "缺镜头段：没有景别/机位/焦段",
                                 "补「景别 + 机位 + 焦段」，见 02 第 ⑦ 格"))
 
-    if not tech_fig and not find_terms(text, STYLE_WORDS):
+    if not tech_fig and not edit_brief and not find_terms(text, STYLE_WORDS):
         res.issues.append(Issue("P1", "结构", "缺风格段：没有风格族/介质",
                                 "至少给一个风格族词，见 05"))
 
@@ -802,7 +821,10 @@ def lint(text: str, platform: str = "unknown", purpose: str = "general",
                                 "加『总数严格等于 N，不允许第 N+1 个、不允许分身』（D46）"))
 
     # 12) 通用美颜套话（会覆盖人物设定，优先级高于普通空词）
+    #     例外：国漫/三渲二体系里「九头身」是比例规格，已点名画风时不报
     cliche = find_terms(text, BEAUTY_CLICHE)
+    if cliche and find_terms(text, ANIME_SPEC_WORDS):
+        cliche = [c for c in cliche if c != "九头身"]
     if cliche:
         res.issues.append(Issue("P2", "套话",
                                 f"通用美颜套话：{'、'.join(cliche[:4])}",
@@ -896,12 +918,21 @@ def lint(text: str, platform: str = "unknown", purpose: str = "general",
         lvl = "P1" if over > 1.5 else "P2"
         res.issues.append(Issue(lvl, "长度",
                                 f"超出 {platform} {length} 档上限：{len(text)} > {limit}",
-                                "换更长的一档交付（--length long），或先砍氛围句；"
-                                "不要为了过检删用户点名的点缀细节"))
+                                "按 14-compress.md 六刀压：先砍解释句/抽象词/重复形容，"
+                                "别为过检删用户点名的设计细节与数量封顶"))
+
+    # 16) 平台硬上限（接口限制，不是建议）
+    cap = HARD_CAP.get(platform)
+    if cap and len(text) > cap:
+        res.issues.append(Issue("P1", "长度",
+                                f"超过 {platform} 接口硬上限：{len(text)} > {cap} 字符",
+                                "该平台文档写明过长有概率出图异常或不生效，"
+                                "必须压到上限内再出图（结构句合并，不改结构项）"))
 
     # 10) 兜底提醒
     if not find_terms(text, ["不出现", "无文字", "无可读", "无任何", "no text", "no lettering",
-                             "--no", "排除", "禁止", "无格号", "无标签"]):
+                             "--no", "排除", "禁止", "无格号", "无标签",
+                             "保持不变", "exactly the same", "keep the same", "unchanged"]):
         res.issues.append(Issue("P2", "结构", "未写任何排除/反向",
                                 "至少排除：文字、水印、多余物体、变形"))
 
@@ -1135,6 +1166,45 @@ SELF_TESTS = [
         "text": ("3:4 全身，主题材为仙侠，次题材赛博仅左臂义体。"
                  "左上45度柔光，85mm，3D 国漫半写实，无文字。"),
         "platform": "seedream", "purpose": "portrait", "expect_no_code": "题材",
+    },
+    {
+        "name": "长度：超过即梦接口硬上限",
+        "text": ("3:4 " + "云海浮空仙山碎石" * 100 + " 左上45度柔光，85mm，无文字。"),
+        "platform": "seedream", "purpose": "portrait", "length": "long",
+        "expect_code": "长度",
+    },
+    {
+        "name": "套话：国漫里九头身是比例规格，不报套话",
+        "text": ("3:4 全身，顶级院线级3D国漫风，九头身，银白长发剑修，月白广袖长裙。"
+                 "左上45度柔光，85mm，PBR材质，无文字。"),
+        "platform": "seedream", "purpose": "portrait", "expect_no_code": "套话",
+    },
+    {
+        "name": "改图：edit 用途不查镜头与风格（沿用原图）",
+        "text": ("Edit for a product page hero, 3:4. Replace the background with a plain "
+                 "light-grey studio backdrop. Match the original soft side light and 5200K. "
+                 "Keep the face, hair, pose and framing exactly the same."),
+        "platform": "gpt_image", "purpose": "edit",
+        "expect_no_code": "结构",
+    },
+    {
+        "name": "数量：否定式计数『第二个人物』不报",
+        "text": ("3:4 全身，一位女剑修站在石阶上，手臂与躯干间留出空隙。"
+                 "左上45度柔光，85mm，3D 国漫，画面中不出现第二个人物与文字。"),
+        "platform": "seedream", "purpose": "portrait", "expect_no_code": "数量",
+    },
+    {
+        "name": "长度：可灵网页端硬上限 500 字符",
+        "text": ("3:4 " + "云海浮空仙山碎石" * 70 + " 左上45度柔光，85mm，无文字。"),
+        "platform": "kling", "purpose": "portrait", "length": "long",
+        "expect_code": "长度",
+    },
+    {
+        "name": "数量：剑影封顶后应放过",
+        "text": ("3:4 全身，仙侠女修，主剑一柄，另有虚影恰好8柄，外层五柄等距成环、"
+                 "内层三柄略高，总数严格等于9，不允许第10柄。"
+                 "左上45度柔光，85mm，3D 国漫，无文字。"),
+        "platform": "seedream", "purpose": "portrait", "expect_no_code": "数量",
     },
 ]
 
