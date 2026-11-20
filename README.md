@@ -183,6 +183,8 @@ image-prompt-smith/            ← 仓库根 = Skill 根
 │   ├── 12-reference-and-multiframe.md  多格与参考图
 │   ├── 13-game-concept.md     游戏概念设计（五产出 × 五画风 × IP 转译）
 │   ├── 14-compress.md         压缩规程（全平台上限矩阵 + 四档 + 六刀 + 红线）
+│   ├── 15-structured.md       结构化提示词（字段卡 + 散文互转 + 批量一致性）
+│   ├── 16-to-video.md         图生视频（运动五要素 + 首尾帧 + 六崩坏）
 │   └── character/             34 份人物参考
 │       ├── image-types.md          36 种图型（核心）
 │       ├── body-parts.md           部位词法（头到脚，按景别裁剪）
